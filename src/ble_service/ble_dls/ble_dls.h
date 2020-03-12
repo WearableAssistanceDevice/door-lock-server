@@ -7,6 +7,12 @@
 #include "ble.h"
 #include "ble_srv_common.h"
 
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
 // Base 128-bit UUID for the door lock service
 #define DLS_UUID_BASE { 0x7D, 0x94, 0xA7, 0x59, 0x10, 0xD8, 0x0B, 0xAB, \
                         0x4D, 0x4E, 0xA9, 0x10, 0x0D, 0xA3, 0xE1, 0xD1 }
@@ -122,5 +128,11 @@ uint32_t ble_dls_door_lock_set(ble_dls_t* p_dls, uint8_t door_lock_value);
  * @return      NRF_SUCCESS on success, otherwise an error code.
  */
 uint32_t ble_dls_door_lock_get(ble_dls_t* p_dls, uint8_t* p_door_lock_value);
+
+
+#ifdef __cplusplus
+}
+#endif
+
 
 #endif //BLE_DLS_H
