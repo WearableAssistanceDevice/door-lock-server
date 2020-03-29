@@ -7,6 +7,10 @@
 #include "ble_advertising.h"
 
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 
 /**@brief BLE advertisement event handler type */
 typedef void (*ble_adv_evt_handler_t)(ble_adv_evt_t ble_adv_evt);
@@ -48,3 +52,8 @@ void advertising_start(bool erase_bonds);
  * @param[in] event  BSP event.
  */
 void ble_bsp_evt_handler(bsp_event_t event);
+
+
+#ifdef __cplusplus
+}
+#endif

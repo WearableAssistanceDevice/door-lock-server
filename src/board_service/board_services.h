@@ -6,6 +6,10 @@
 #include "bsp.h"
 
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 
 /**@brief BSP event handler type */
 typedef void (*bsp_evt_handler_t)(bsp_event_t event);
@@ -23,3 +27,8 @@ typedef struct {
  * @param[in] p_init  Board services initialization config.
  */
 void board_services_init(board_services_init_t* p_init);
+
+
+#ifdef __cplusplus
+}
+#endif
