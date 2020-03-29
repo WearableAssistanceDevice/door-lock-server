@@ -16,7 +16,7 @@
  *
  * @return      NRF_SUCCESS on success, otherwise an error code.
  */
-static uint32_t door_lock_request_char_add(ble_dls_t* p_dls, const ble_dls_init_t* p_dls_init) {
+static uint32_t lock_state_request_char_add(ble_dls_t* p_dls, const ble_dls_init_t* p_dls_init) {
     uint32_t            err_code;
     ble_gatts_char_md_t char_md;
     ble_gatts_attr_md_t cccd_md;
@@ -27,7 +27,7 @@ static uint32_t door_lock_request_char_add(ble_dls_t* p_dls, const ble_dls_init_
     memset(&cccd_md, 0, sizeof(cccd_md));
     BLE_GAP_CONN_SEC_MODE_SET_OPEN(&cccd_md.read_perm);
     BLE_GAP_CONN_SEC_MODE_SET_OPEN(&cccd_md.write_perm);
-    cccd_md.write_perm = p_dls_init->door_lock_char_attr_md.cccd_write_perm;
+    cccd_md.write_perm = p_dls_init->lock_state_char_attr_md.cccd_write_perm;
     cccd_md.vloc       = BLE_GATTS_VLOC_STACK;
 
     memset(&char_md, 0, sizeof(char_md));
@@ -41,15 +41,15 @@ static uint32_t door_lock_request_char_add(ble_dls_t* p_dls, const ble_dls_init_
     char_md.p_sccd_md         = NULL;
 		
     memset(&attr_md, 0, sizeof(attr_md));
-    attr_md.read_perm  = p_dls_init->door_lock_char_attr_md.read_perm;
-    attr_md.write_perm = p_dls_init->door_lock_char_attr_md.write_perm;
+    attr_md.read_perm  = p_dls_init->lock_state_char_attr_md.read_perm;
+    attr_md.write_perm = p_dls_init->lock_state_char_attr_md.write_perm;
     attr_md.vloc       = BLE_GATTS_VLOC_STACK;
     attr_md.rd_auth    = 0;
     attr_md.wr_auth    = 0;
     attr_md.vlen       = 0;
 
     ble_uuid.type = p_dls->uuid_type;
-    ble_uuid.uuid = DLS_UUID_DOOR_LOCK_CHAR;
+    ble_uuid.uuid = DLS_UUID_LOCK_STATE_CHAR;
 
     memset(&attr_char_value, 0, sizeof(attr_char_value));
     attr_char_value.p_uuid    = &ble_uuid;
@@ -57,12 +57,12 @@ static uint32_t door_lock_request_char_add(ble_dls_t* p_dls, const ble_dls_init_
     attr_char_value.init_len  = sizeof(uint8_t);
     attr_char_value.init_offs = 0;
     attr_char_value.max_len   = sizeof(uint8_t);
-    attr_char_value.p_value   = &p_dls_init->initial_door_lock_value;
+    attr_char_value.p_value   = &p_dls_init->initial_lock_state_value;
 
     err_code = sd_ble_gatts_characteristic_add(p_dls->service_handle,
                                                &char_md,
                                                &attr_char_value,
-                                               &p_dls->door_lock_handles);
+                                               &p_dls->lock_state_handles);
     if (err_code != NRF_SUCCESS) {
         return err_code;
     }
@@ -97,11 +97,11 @@ uint32_t ble_dls_init(ble_dls_t* p_dls, const ble_dls_init_t* p_dls_init) {
         return err_code;
     }
 
-    return door_lock_request_char_add(p_dls, p_dls_init);
+    return lock_state_request_char_add(p_dls, p_dls_init);
 }
 
 
-uint32_t ble_dls_door_lock_set(ble_dls_t* p_dls, uint8_t door_lock_value) {
+uint32_t ble_dls_lock_state_set(ble_dls_t* p_dls, uint8_t lock_state_value) {
     if (p_dls == NULL) {
         return NRF_ERROR_NULL;
     }
@@ -113,11 +113,11 @@ uint32_t ble_dls_door_lock_set(ble_dls_t* p_dls, uint8_t door_lock_value) {
     memset(&gatts_value, 0, sizeof(gatts_value));
     gatts_value.len     = sizeof(uint8_t);
     gatts_value.offset  = 0;
-    gatts_value.p_value = &door_lock_value;
+    gatts_value.p_value = &lock_state_value;
 
     // Update database
     err_code = sd_ble_gatts_value_set(p_dls->conn_handle,
-                                      p_dls->door_lock_handles.value_handle,
+                                      p_dls->lock_state_handles.value_handle,
                                       &gatts_value);
     if (err_code != NRF_SUCCESS) {
         return err_code;
@@ -129,7 +129,7 @@ uint32_t ble_dls_door_lock_set(ble_dls_t* p_dls, uint8_t door_lock_value) {
 
         memset(&hvx_params, 0, sizeof(hvx_params));
 
-        hvx_params.handle = p_dls->door_lock_handles.value_handle;
+        hvx_params.handle = p_dls->lock_state_handles.value_handle;
         hvx_params.type   = BLE_GATT_HVX_NOTIFICATION;
         hvx_params.offset  = gatts_value.offset;
         hvx_params.p_len  = &gatts_value.len;
@@ -148,7 +148,7 @@ uint32_t ble_dls_door_lock_set(ble_dls_t* p_dls, uint8_t door_lock_value) {
     return err_code;
 }
 
-uint32_t ble_dls_door_lock_get(ble_dls_t* p_dls, uint8_t* p_door_lock_value) {
+uint32_t ble_dls_lock_state_get(ble_dls_t* p_dls, uint8_t* p_lock_state_value) {
     uint32_t err_code = NRF_SUCCESS;
     ble_gatts_value_t gatts_value;
 
@@ -156,11 +156,11 @@ uint32_t ble_dls_door_lock_get(ble_dls_t* p_dls, uint8_t* p_door_lock_value) {
     memset(&gatts_value, 0, sizeof(gatts_value));
     gatts_value.len     = sizeof(uint8_t);
     gatts_value.offset   = 0;
-    gatts_value.p_value = p_door_lock_value;
+    gatts_value.p_value = p_lock_state_value;
 
     // Retrieve the value
     err_code = sd_ble_gatts_value_get(p_dls->conn_handle,
-                                      p_dls->door_lock_handles.value_handle,
+                                      p_dls->lock_state_handles.value_handle,
                                       &gatts_value);
 
     return err_code;
@@ -209,7 +209,7 @@ static void on_write(ble_dls_t* p_dls, const ble_evt_t* p_ble_evt) {
     const ble_gatts_evt_write_t* p_evt_write = &p_ble_evt->evt.gatts_evt.params.write;
     
     // Check if the handle passed with the event matches the Door locked Characteristic handle
-    if (p_evt_write->handle == p_dls->door_lock_handles.value_handle) {
+    if (p_evt_write->handle == p_dls->lock_state_handles.value_handle) {
         if (p_dls->evt_handler != NULL) {
             ble_dls_evt_t evt;
             evt.evt_type = BLE_DLS_EVT_WRITE;
@@ -218,7 +218,7 @@ static void on_write(ble_dls_t* p_dls, const ble_evt_t* p_ble_evt) {
     }
 
     // Check if the Custom value CCCD is written to and that the value is the appropriate length, i.e 2 bytes.
-    if ((p_evt_write->handle == p_dls->door_lock_handles.cccd_handle) && (p_evt_write->len == 2)) {
+    if ((p_evt_write->handle == p_dls->lock_state_handles.cccd_handle) && (p_evt_write->len == 2)) {
         // CCCD written, call application event handler
         if (p_dls->evt_handler != NULL) {
             ble_dls_evt_t evt;

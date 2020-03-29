@@ -18,8 +18,8 @@ extern "C" {
                         0x4D, 0x4E, 0xA9, 0x10, 0x0D, 0xA3, 0xE1, 0xD1 }
 
 // 16-bit UUID for the service and its characteristics
-#define DLS_UUID_SERVICE        0x2000
-#define DLS_UUID_DOOR_LOCK_CHAR 0x2001
+#define DLS_UUID_SERVICE         0x2000
+#define DLS_UUID_LOCK_STATE_CHAR 0x2001
 
 
 /**@brief   Macro for defining an door lock service instance.
@@ -60,8 +60,8 @@ typedef void (*ble_dls_evt_handler_t)(ble_dls_t* p_dls, ble_dls_evt_t* p_evt);
  *        initialization of the service.*/
 typedef struct {
     ble_dls_evt_handler_t        evt_handler;               /**< Event handler to be called for handling events in the Door Lock Service */
-    uint8_t                      initial_door_lock_value;  /**< Initial value for the door lock */
-    ble_srv_cccd_security_mode_t door_lock_char_attr_md;   /**< Initial security level for Door Lock characteristics attribute */
+    uint8_t                      initial_lock_state_value;  /**< Initial value for the door lock */
+    ble_srv_cccd_security_mode_t lock_state_char_attr_md;   /**< Initial security level for Door Lock characteristics attribute */
 } ble_dls_init_t;
 
 
@@ -69,7 +69,7 @@ typedef struct {
 struct ble_dls_s {
     ble_dls_evt_handler_t    evt_handler;         /**< Event handler to be called for handling events in the Door Lock Service */
     uint16_t                 service_handle;      /**< Handle of Door Lock Service (as provided by the BLE stack) */
-    ble_gatts_char_handles_t door_lock_handles;  /**< Handles related to the Door locked characteristic */
+    ble_gatts_char_handles_t lock_state_handles;  /**< Handles related to the Door locked characteristic */
     uint16_t                 conn_handle;         /**< Handle of the current connection (as provided by the BLE stack, is BLE_CONN_HANDLE_INVALID if not in a connection) */
     uint8_t                  uuid_type; 
 };
@@ -106,12 +106,12 @@ void ble_dls_on_ble_evt(const ble_evt_t* p_ble_evt, void* p_context);
  *
  * @note 
  *       
- * @param[in]   p_dls            Door Lock Service structure
- * @param[in]   door_lock_value  Door lock value
+ * @param[in]   p_dls             Door Lock Service structure
+ * @param[in]   lock_state_value  Door lock state value
  *
  * @return      NRF_SUCCESS on success, otherwise an error code.
  */
-uint32_t ble_dls_door_lock_set(ble_dls_t* p_dls, uint8_t door_lock_value);
+uint32_t ble_dls_lock_state_set(ble_dls_t* p_dls, uint8_t lock_state_value);
 
 
 
@@ -122,12 +122,12 @@ uint32_t ble_dls_door_lock_set(ble_dls_t* p_dls, uint8_t door_lock_value);
  *
  * @note 
  *       
- * @param[in]   p_dls              Door Lock Service structure
- * @param[in]   p_door_lock_value  Pointer to the location to store the door lock value
+ * @param[in]   p_dls               Door Lock Service structure
+ * @param[in]   p_lock_state_value  Pointer to the location to store the lock state value
  *
  * @return      NRF_SUCCESS on success, otherwise an error code.
  */
-uint32_t ble_dls_door_lock_get(ble_dls_t* p_dls, uint8_t* p_door_lock_value);
+uint32_t ble_dls_lock_state_get(ble_dls_t* p_dls, uint8_t* p_lock_state_value);
 
 
 #ifdef __cplusplus

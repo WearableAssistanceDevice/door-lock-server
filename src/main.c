@@ -81,7 +81,7 @@ static void sleep_mode_enter(void)
 static void door_lock_timeout(void* p_context)
 {
     NRF_LOG_INFO("Door autolock");
-    ble_dls_door_lock_set(&m_door, true);
+    ble_dls_lock_state_set(&m_door, true);
 }
 
 
@@ -122,7 +122,7 @@ static void on_door_evt(ble_dls_t* p_door, ble_dls_evt_t* p_evt) {
             break;
 
         case BLE_DLS_EVT_WRITE: {
-            err_code = ble_dls_door_lock_get(p_door, &door_locked);
+            err_code = ble_dls_lock_state_get(p_door, &door_locked);
             APP_ERROR_CHECK(err_code);
             if (door_locked) {
                 NRF_LOG_INFO("Door locked");
@@ -153,7 +153,7 @@ void bsp_event_handler(bsp_event_t event) {
             break;
 
         case DOOR_LOCK_BUTTON_EVT:
-            ble_dls_door_lock_set(&m_door, true);
+            ble_dls_lock_state_set(&m_door, true);
             break;
     }
 
@@ -221,9 +221,9 @@ static void door_service_init(void) {
     ble_dls_init_t door_init = {0};
     
     door_init.evt_handler = on_door_evt;
-    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&door_init.door_lock_char_attr_md.cccd_write_perm);
-    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&door_init.door_lock_char_attr_md.read_perm);
-    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&door_init.door_lock_char_attr_md.write_perm);
+    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&door_init.lock_state_char_attr_md.cccd_write_perm);
+    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&door_init.lock_state_char_attr_md.read_perm);
+    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&door_init.lock_state_char_attr_md.write_perm);
 
     const ret_code_t err_code = ble_dls_init(&m_door, &door_init);
     APP_ERROR_CHECK(err_code);
@@ -259,7 +259,7 @@ int main(void)
     ble_services_init(&ble_init);
     application_timers_init();
 
-    const ret_code_t err_code = ble_dls_door_lock_set(&m_door, true);
+    const ret_code_t err_code = ble_dls_lock_state_set(&m_door, true);
     APP_ERROR_CHECK(err_code);
 
     // Start execution
