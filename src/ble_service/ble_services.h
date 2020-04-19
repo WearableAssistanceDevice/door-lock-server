@@ -47,13 +47,6 @@ void ble_services_init(const ble_services_init_t* p_init);
 void advertising_start(bool erase_bonds);
 
 
-/**@brief Function for handling BLE-related BSP events.
- *
- * @param[in] event  BSP event.
- */
-void ble_bsp_evt_handler(bsp_event_t event);
-
-
 #ifdef __cplusplus
 }
 #endif

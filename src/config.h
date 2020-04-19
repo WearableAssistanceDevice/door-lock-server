@@ -33,7 +33,9 @@
 #define SEC_PARAM_MIN_KEY_SIZE          7                                       /**< Minimum encryption key size. */
 #define SEC_PARAM_MAX_KEY_SIZE          16                                      /**< Maximum encryption key size. */
 
+#define CONNECTED_LED                   BSP_BOARD_LED_3                         /**< The LED that indicates an active connection */
+
 
 // BLE Door Lock Service Config
-#define DOOR_LOCK_BUTTON_EVT            BSP_EVENT_KEY_3                         /**< The button event fired when the door lock button is pressed */
-#define DOOR_LOCK_LED                   BSP_BOARD_LED_3                         /**< The LED that indicates the door is locked */
+#define DOOR_LOCK_BUTTON_EVT            BSP_EVENT_KEY_0                         /**< The button event fired when the door lock button is pressed */
+#define DOOR_LOCK_LED                   BSP_BOARD_LED_0                         /**< The LED that indicates the door is locked */

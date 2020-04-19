@@ -80,7 +80,7 @@ static void sleep_mode_enter(void)
 */
 static void door_lock_timeout(void* p_context)
 {
-    NRF_LOG_INFO("Door autolock");
+    NRF_LOG_INFO("Door autolock engaged");
     ble_dls_lock_state_set(&m_door, true);
 }
 
@@ -132,6 +132,7 @@ static void on_door_evt(ble_dls_t* p_door, ble_dls_evt_t* p_evt) {
                 NRF_LOG_INFO("Door unlocked");
                 bsp_board_led_off(DOOR_LOCK_LED);
                 door_timer_start();
+                sd_ble_gap_disconnect(p_door->conn_handle, BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
             }
             break;
         }
@@ -155,9 +156,29 @@ void bsp_event_handler(bsp_event_t event) {
         case DOOR_LOCK_BUTTON_EVT:
             ble_dls_lock_state_set(&m_door, true);
             break;
-    }
 
-    ble_bsp_evt_handler(event);
+        /* Don't want these for now
+        case BSP_EVENT_DISCONNECT:
+            err_code = sd_ble_gap_disconnect(m_conn_handle,
+                                             BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
+            if (err_code != NRF_ERROR_INVALID_STATE)
+            {
+                APP_ERROR_CHECK(err_code);
+            }
+            break; // BSP_EVENT_DISCONNECT
+
+        case BSP_EVENT_WHITELIST_OFF:
+            if (m_conn_handle == BLE_CONN_HANDLE_INVALID)
+            {
+                err_code = ble_advertising_restart_without_whitelist(&m_advertising);
+                if (err_code != NRF_ERROR_INVALID_STATE)
+                {
+                    APP_ERROR_CHECK(err_code);
+                }
+            }
+            break; // BSP_EVENT_KEY_0
+        */
+    }
 }
 
 
@@ -183,7 +204,18 @@ void ble_adv_evt_handler(ble_adv_evt_t ble_adv_evt) {
  * @param[in]   p_context   Unused.
  */
 void ble_evt_handler(const ble_evt_t* p_ble_evt, void* p_context) {
-    return;
+    ret_code_t err_code = NRF_SUCCESS;
+
+    switch (p_ble_evt->header.evt_id)
+    {
+        case BLE_GAP_EVT_CONNECTED: {
+            bsp_board_led_on(CONNECTED_LED);
+        } break;
+
+        case BLE_GAP_EVT_DISCONNECTED: {
+            bsp_board_led_off(CONNECTED_LED);
+        } break;
+    }
 }
 
 

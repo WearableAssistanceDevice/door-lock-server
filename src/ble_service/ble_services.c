@@ -39,41 +39,6 @@ static struct {
 static uint16_t m_conn_handle = BLE_CONN_HANDLE_INVALID;                        /**< Handle of the current connection. */
 
 
-/**@brief Function for handling BLE-related BSP events.
- *
- * @param[in] event  BSP event.
- */
-void ble_bsp_evt_handler(bsp_event_t event) {
-    ret_code_t err_code;
-
-    switch (event)
-    {
-        case BSP_EVENT_DISCONNECT:
-            err_code = sd_ble_gap_disconnect(m_conn_handle,
-                                             BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
-            if (err_code != NRF_ERROR_INVALID_STATE)
-            {
-                APP_ERROR_CHECK(err_code);
-            }
-            break; // BSP_EVENT_DISCONNECT
-
-        case BSP_EVENT_WHITELIST_OFF:
-            if (m_conn_handle == BLE_CONN_HANDLE_INVALID)
-            {
-                err_code = ble_advertising_restart_without_whitelist(&m_advertising);
-                if (err_code != NRF_ERROR_INVALID_STATE)
-                {
-                    APP_ERROR_CHECK(err_code);
-                }
-            }
-            break; // BSP_EVENT_KEY_0
-
-        default:
-            break;
-    }
-}
-
-
 /**@brief Function for handling Peer Manager events.
  *
  * @param[in] p_evt  Peer Manager event.
@@ -233,9 +198,7 @@ static void on_adv_evt(ble_adv_evt_t ble_adv_evt)
     switch (ble_adv_evt)
     {
         case BLE_ADV_EVT_FAST:
-            NRF_LOG_INFO("Fast advertising.");
-            err_code = bsp_indication_set(BSP_INDICATE_ADVERTISING);
-            APP_ERROR_CHECK(err_code);
+            NRF_LOG_INFO("Fast advertising");
             break;
 
         default:
@@ -261,17 +224,16 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
     {
         case BLE_GAP_EVT_DISCONNECTED:
             NRF_LOG_INFO("Disconnected.");
-            // LED indication will be changed when advertising starts.
             break;
 
-        case BLE_GAP_EVT_CONNECTED:
-            NRF_LOG_INFO("Connected.");
-            err_code = bsp_indication_set(BSP_INDICATE_CONNECTED);
-            APP_ERROR_CHECK(err_code);
+        case BLE_GAP_EVT_CONNECTED: {
+            const uint8_t* addr = p_ble_evt->evt.gap_evt.params.connected.peer_addr.addr;
+            NRF_LOG_INFO("Connected to %02x:%02x:%02x:%02x:%02x:%02x", addr[0], addr[1], addr[2], addr[3], addr[4], addr[5]);
+
             m_conn_handle = p_ble_evt->evt.gap_evt.conn_handle;
             err_code = nrf_ble_qwr_conn_handle_assign(&m_qwr, m_conn_handle);
             APP_ERROR_CHECK(err_code);
-            break;
+            } break;
 
         case BLE_GAP_EVT_PHY_UPDATE_REQUEST:
         {
