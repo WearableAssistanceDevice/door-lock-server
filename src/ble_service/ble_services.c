@@ -363,11 +363,11 @@ static void advertising_init(const ble_services_init_t* p_init)
     init.advdata.uuids_complete.p_uuids  = p_init->adv_uuids;
 
     /*
-    ble_advdata_manuf_data_t manuf_adv_door_data;
-    manuf_adv_door_data.company_identifier = COMPANY_UUID;
-    manuf_adv_door_data.data.p_data = door_adv_data;
-    manuf_adv_door_data.data.size = sizeof(door_adv_data) / sizeof(door_adv_data[0]);
-    init.advdata.p_manuf_specific_data = &manuf_door_data;
+    ble_advdata_manuf_data_t manuf_response_data;
+    //manuf_response_data.company_identifier = COMPANY_UUID;
+    manuf_response_data.data.p_data = DEVICE_NAME;
+    manuf_response_data.data.size = sizeof(DEVICE_NAME);
+    init.srdata.p_manuf_specific_data = &manuf_response_data;
     */
 
     init.config.ble_adv_fast_enabled  = true;

@@ -30,7 +30,7 @@ APP_TIMER_DEF(m_door_timer); /**< Define the door lock timer */
 
 static ble_uuid_t m_adv_uuids[] =                                               /**< Universally unique service identifiers. */
 {
-    {DLS_UUID_SERVICE, BLE_UUID_TYPE_VENDOR_BEGIN}
+    //{DLS_UUID_SERVICE, BLE_UUID_TYPE_VENDOR_BEGIN}
     //{BLE_UUID_DEVICE_INFORMATION_SERVICE, BLE_UUID_TYPE_BLE}
 };
 
@@ -283,8 +283,8 @@ int main(void)
     ble_init.ble_evt_handler         = ble_evt_handler;
     ble_init.service_init_funcs      = init_funcs;
     ble_init.service_init_func_count = sizeof(init_funcs) / sizeof(init_funcs[0]);
-    ble_init.adv_uuids               = m_adv_uuids;
-    ble_init.adv_uuid_count          = sizeof(m_adv_uuids) / sizeof(m_adv_uuids[0]);
+    ble_init.adv_uuids               = NULL;//m_adv_uuids;
+    ble_init.adv_uuid_count          = 0;//sizeof(m_adv_uuids) / sizeof(m_adv_uuids[0]);
 
     // Initialize
     board_services_init(&board_init);
